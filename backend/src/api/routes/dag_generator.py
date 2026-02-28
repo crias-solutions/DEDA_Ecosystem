@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 
 from backend.src.services.dag_builder import generate_dag
 from backend.src.models.pipeline import DAGGenerateResponse

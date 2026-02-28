@@ -1,6 +1,4 @@
 import os
-import uuid
-from datetime import datetime
 from typing import List, Dict, Any
 
 from backend.src.database.supabase_client import supabase
@@ -13,7 +11,6 @@ def generate_dag_code(pipeline_id: str, stages: List[Dict[str, Any]]) -> str:
     stage_tasks = []
     for stage in stages:
         stage_id = stage["id"]
-        tool_name = stage["tool_name"]
         image = stage["image"]
         command = stage["command"]
         depends_on = stage.get("depends_on", [])
