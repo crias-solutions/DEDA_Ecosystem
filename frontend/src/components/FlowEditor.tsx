@@ -20,6 +20,7 @@ import ProcessNode from './nodes/ProcessNode'
 import InputNode from './nodes/InputNode'
 import OutputNode from './nodes/OutputNode'
 import StageConfig from './StageConfig'
+import WaveformViewer from './WaveformViewer'
 
 const nodeTypes: NodeTypes = {
   input: InputNode,
@@ -32,6 +33,7 @@ interface ToolTemplate {
   tool_name: string
   image: string
   command_template: string
+  config?: Record<string, unknown>
 }
 
 const toolTemplates: ToolTemplate[] = [
@@ -49,6 +51,8 @@ export default function FlowEditor() {
   const [loading, setLoading] = useState(true)
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const [showAddPanel, setShowAddPanel] = useState(false)
+  const [showWaveform, setShowWaveform] = useState(false)
+  const [waveformStageId, setWaveformStageId] = useState<string | null>(null)
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<any>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<any>>([]);
@@ -124,6 +128,7 @@ export default function FlowEditor() {
       tool_name: template.tool_name,
       image: template.image,
       command: template.command_template,
+      config: template.config,
       order_index: stageCount,
       position_x: 100 + stageCount * 200,
       position_y: 100,
@@ -212,6 +217,22 @@ export default function FlowEditor() {
               >
                 Run
               </button>
+              {pipeline && (
+                <button
+                  onClick={() => {
+                    const simStage = pipeline.stages.find(s => s.tool_name === 'ghdl' && s.command.includes('--vcd'))
+                    if (simStage) {
+                      setWaveformStageId(simStage.id)
+                      setShowWaveform(true)
+                    } else {
+                      alert('No simulation stage with VCD output found. Run the pipeline first.')
+                    }
+                  }}
+                  className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm"
+                >
+                  View Waveform
+                </button>
+              )}
             </>
           )}
         </div>
@@ -248,6 +269,16 @@ export default function FlowEditor() {
               )
             )
             setSelectedStage(null)
+          }}
+        />
+      )}
+
+      {showWaveform && waveformStageId && (
+        <WaveformViewer
+          stageId={waveformStageId}
+          onClose={() => {
+            setShowWaveform(false)
+            setWaveformStageId(null)
           }}
         />
       )}

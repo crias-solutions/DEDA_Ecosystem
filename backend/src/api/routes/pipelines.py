@@ -110,3 +110,32 @@ async def update_stage(stage_id: UUID, stage: StageUpdate):
 async def delete_stage(stage_id: UUID):
     supabase.table("pipeline_stages").delete().eq("id", str(stage_id)).execute()
     return None
+
+
+@router.get("/stages/{stage_id}/artifacts")
+async def get_stage_artifacts(stage_id: UUID):
+    """Fetch the VCD artifact for a specific stage."""
+    response = (
+        supabase.table("artifacts")
+        .select("*")
+        .eq("stage_id", str(stage_id))
+        .eq("file_type", "vcd")
+        .execute()
+    )
+
+    if not response.data:
+        raise HTTPException(
+            status_code=404, detail="No VCD artifact found for this stage"
+        )
+
+    artifact = response.data[0]
+
+    if artifact.get("file_path"):
+        try:
+            with open(artifact["file_path"], "r") as f:
+                content = f.read()
+            return {"filename": artifact["filename"], "content": content}
+        except FileNotFoundError:
+            pass
+
+    return {"filename": artifact["filename"], "content": None}
