@@ -1,0 +1,30 @@
+# Web framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Supabase
+supabase>=2.0.0
+
+# Airflow (for DAG generation)
+apache-airflow>=2.8.0
+airflow-providers-docker>=3.0.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# Serialization
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+pyyaml>=6.0
+
+# Utilities
+python-dotenv>=1.0.0
+httpx>=0.26.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+
+# Linting
+ruff>=0.1.0

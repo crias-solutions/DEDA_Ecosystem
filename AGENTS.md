@@ -1,55 +1,276 @@
 # AGENTS.md
 
-> This file provides context to OpenCode and other AI coding assistants about your project.
+> This file provides context to OpenCode and other AI coding assistants about this project.
 
 ---
 
 ## Project Overview
 
-**Name:** [Your Project Name]
+**Name:** DEDA Ecosystem (Digital Electronics Design Automation)
 
-**Description:** [One-sentence description of what this project does]
+**Description:** A visual no-code orchestration platform for automating hardware design verification workflows. Users design pipelines through drag-and-drop flow-based programming using UML Activity Diagram standards. The system translates visual workflows into executable Apache Airflow DAGs that run open-source EDA tools inside Docker containers.
 
-**Type:** Python Application
+**Type:** Full-stack Python Application with React Frontend
+
+---
+
+## Architecture
+
+### System Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                 React Frontend (Vite + React Flow)                   │
+│                    Port 3000 | Visual Flow Editor                    │
+└─────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│                  FastAPI Backend (Port 8000)                         │
+│         DAG Generator | Pipeline CRUD | Supabase Client              │
+└─────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Cloud Supabase (External)                         │
+│         pipelines | pipeline_stages | dag_runs | artifacts           │
+└─────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│              Apache Airflow + DockerOperator (Port 8080)             │
+│                     LocalExecutor                                    │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Frontend | React + React Flow | Visual flow-based pipeline editor |
+| Backend API | FastAPI | REST API, DAG generation |
+| Database | Supabase (cloud-hosted) | Pipeline/artifact storage |
+| Orchestration | Apache Airflow | DAG execution |
+| Container Runtime | Docker + DockerOperator | Isolated EDA tool execution |
 
 ---
 
 ## Tech Stack
 
-- **Language:** Python 3.12
-- **Package Manager:** pip
+- **Backend:** Python 3.12, FastAPI, Apache Airflow, Pydantic
+- **Frontend:** React 18, TypeScript, React Flow (@xyflow/react), Vite
+- **Database:** Supabase (PostgreSQL)
+- **Containerization:** Docker, Docker Compose
 - **Testing:** pytest
 - **Linting:** Ruff
-- **Formatting:** Ruff / Black
+- **Formatting:** Ruff
 
 ---
 
 ## Project Structure
 
 ```
-project-root/
-├── src/                  # Source code
-│   ├── __init__.py
-│   └── main.py
-├── tests/                # Test files
-│   └── test_main.py
-├── .devcontainer/        # Codespaces config
-├── AGENTS.md             # This file
-├── README.md
-├── requirements.txt
-└── LICENSE
+DEDA_Ecosystem/
+├── docker/
+│   ├── docker-compose.yml           # All services configuration
+│   ├── airflow/
+│   │   ├── Dockerfile               # Airflow custom image
+│   │   └── requirements.txt        # Airflow dependencies
+│   └── scripts/
+│       └── entrypoint.sh            # Container startup scripts
+├── backend/
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── main.py                 # FastAPI application entry
+│   │   ├── config.py               # Configuration management
+│   │   ├── database/
+│   │   │   ├── __init__.py
+│   │   │   └── supabase_client.py  # Supabase connection
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   └── routes/
+│   │   │       ├── __init__.py
+│   │   │       ├── pipelines.py    # Pipeline CRUD endpoints
+│   │   │       └── dag_generator.py # Generate Airflow DAG
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   └── pipeline.py         # Pydantic schemas
+│   │   └── services/
+│   │       ├── __init__.py
+│   │       └── dag_builder.py      # DAG generation logic
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   └── unit/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── FlowEditor.tsx      # React Flow canvas
+│   │   │   ├── PipelineList.tsx    # Dashboard view
+│   │   │   ├── StageConfig.tsx      # Stage properties panel
+│   │   │   └── nodes/
+│   │   │       ├── InputNode.tsx
+│   │   │       ├── OutputNode.tsx
+│   │   │       ├── ProcessNode.tsx
+│   │   │       └── DecisionNode.tsx
+│   │   ├── services/
+│   │   │   ├── api.ts              # Backend API client
+│   │   │   └── supabase.ts         # Supabase client
+│   │   ├── types/
+│   │   │   └── pipeline.ts         # TypeScript types
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── index.css
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   └── Dockerfile
+├── dags/
+│   └── .gitkeep                     # Generated DAGs go here
+├── supabase/
+│   └── migrations/
+│       └── 001_initial_schema.sql   # Database schema
+├── .env.example                     # Environment template
+├── .gitignore
+├── requirements.txt                  # Root Python deps
+├── LICENSE
+└── README.md
 ```
+
+---
+
+## Database Schema (Supabase)
+
+Execute the following SQL in your Supabase SQL Editor:
+
+```sql
+-- Pipelines table
+create table pipelines (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    description text,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now(),
+    status text default 'draft',
+    created_by text
+);
+
+-- Pipeline stages (nodes in the flow)
+create table pipeline_stages (
+    id uuid primary key default gen_random_uuid(),
+    pipeline_id uuid references pipelines(id) on delete cascade,
+    name text not null,
+    tool_name text not null,
+    image text not null,
+    command text not null,
+    depends_on jsonb default '[]',
+    config jsonb default '{}',
+    order_index int not null,
+    position_x float default 0,
+    position_y float default 0,
+    created_at timestamptz default now()
+);
+
+-- DAG execution tracking
+create table dag_runs (
+    id uuid primary key default gen_random_uuid(),
+    pipeline_id uuid references pipelines(id),
+    airflow_dag_id text,
+    status text default 'pending',
+    started_at timestamptz,
+    completed_at timestamptz,
+    logs text,
+    created_at timestamptz default now()
+);
+
+-- Artifacts (output files)
+create table artifacts (
+    id uuid primary key default gen_random_uuid(),
+    dag_run_id uuid references dag_runs(id),
+    stage_id uuid references pipeline_stages(id),
+    filename text,
+    file_path text,
+    file_type text,
+    created_at timestamptz default now()
+);
+
+-- Enable RLS (Row Level Security)
+alter table pipelines enable row level security;
+alter table pipeline_stages enable row level security;
+alter table dag_runs enable row level security;
+alter table artifacts enable row level security;
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SUPABASE_URL` | Supabase project URL (e.g., https://xxxxx.supabase.co) | Yes |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Yes |
+| `AIRFLOW__CORE__DAGS_FOLDER` | Path to DAGs folder (/opt/airflow/dags) | Yes |
+| `AIRFLOW__CORE__EXECUTOR` | LocalExecutor | Yes |
+| `AIRFLOW__WEBSERVER__BASE_URL` | http://localhost:8080 | Yes |
+| `DAG_OUTPUT_DIR` | Directory for generated DAGs | Yes |
+| `ANTHROPIC_API_KEY` | Anthropic API key | No |
+| `OPENAI_API_KEY` | OpenAI API key | No |
+
+---
+
+## EDA Tools (VHDL/GHDL/GTKWave)
+
+### Supported Tool Stages
+
+| Stage Type | Tool | Docker Image | Command Template |
+|------------|------|--------------|------------------|
+| input | file_input | deda/input-handler:latest | Copy files to workspace |
+| analysis | ghdl | ghdl/ghdl:llvm | `ghdl -a {files}` |
+| elaboration | ghdl | ghdl/ghdl:llvm | `ghdl -e {entity}` |
+| simulation | ghdl | ghdl/ghdl:llvm | `ghdl -r {entity} --vcd={output}` |
+| visualization | gtkwave | gtkwave/gtkwave:latest | `gtkwave {vcd_file}` |
+
+### VHDL Pipeline Example
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  Input   │───▶│ Analysis │───▶│Elaborate │───▶│ Simulate  │───▶│   View   │
+│ (VHDL)   │    │  (GHDL)  │    │  (GHDL)  │    │  (GHDL)   │    │ (GTKWave)│
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
+```
+
+---
+
+## Docker Compose Services
+
+| Service | Image | Ports | Purpose |
+|---------|-------|-------|---------|
+| deda-frontend | build: ./frontend | 3000 | React visual editor |
+| deda-backend | build: ./backend | 8000 | FastAPI REST API |
+| airflow-webserver | build: ./docker/airflow | 8080 | Airflow UI |
+| airflow-scheduler | build: ./docker/airflow | 8793 | DAG scheduler |
+| airflow-triggerer | build: ./docker/airflow | 8800 | DAG triggerer |
+| airflow-worker | build: ./docker/airflow | - | DAG worker |
+| postgres-airflow | postgres:15 | 5433 | Airflow metadata DB |
+| redis | redis:7 | 6379 | Airflow message queue |
 
 ---
 
 ## Coding Standards
 
-### Style
+### Python (Backend)
 
 - Follow PEP 8
 - Use type hints for all functions
 - Maximum line length: 88 characters
 - Use docstrings for public functions and classes
+- Use Pydantic for data validation
+
+### TypeScript/React (Frontend)
+
+- Use functional components with hooks
+- Use TypeScript for all files
+- Follow React Flow node/edge patterns
+- Use TanStack Query for data fetching
 
 ### Naming Conventions
 
@@ -60,42 +281,38 @@ project-root/
 | Classes | PascalCase | `UserManager` |
 | Constants | UPPER_SNAKE | `MAX_RETRIES` |
 | Private | _prefix | `_internal_method()` |
-
-### Imports
-
-```python
-# Standard library
-import os
-import sys
-
-# Third-party
-import requests
-import pandas as pd
-
-# Local
-from src.utils import helper
-```
+| React Components | PascalCase | `FlowEditor` |
+| TypeScript Types | PascalCase | `PipelineStage` |
 
 ---
 
-## Testing
+## API Endpoints
 
-### Run Tests
+### Pipelines
 
-```bash
-pytest
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/pipelines | List all pipelines |
+| POST | /api/pipelines | Create new pipeline |
+| GET | /api/pipelines/{id} | Get pipeline details |
+| PUT | /api/pipelines/{id} | Update pipeline |
+| DELETE | /api/pipelines/{id} | Delete pipeline |
 
-### With Coverage
+### Pipeline Stages
 
-```bash
-pytest --cov=src --cov-report=term-missing
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/pipelines/{id}/stages | List pipeline stages |
+| POST | /api/pipelines/{id}/stages | Add stage to pipeline |
+| PUT | /api/stages/{id} | Update stage |
+| DELETE | /api/stages/{id} | Delete stage |
 
-### Test Naming
+### DAG Generation
 
-- Files: `test_<module>.py`
-- Functions: `test_<function>_<scenario>()`
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/pipelines/{id}/generate-dag | Generate Airflow DAG |
+| POST | /api/pipelines/{id}/run | Run pipeline |
 
 ---
 
@@ -104,58 +321,89 @@ pytest --cov=src --cov-report=term-missing
 ### Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+# Backend
+cd backend && pip install -r requirements.txt
+
+# Frontend
+cd frontend && npm install
 ```
 
-### Add New Dependency
+### Run Locally with Docker Compose
 
 ```bash
-pip install <package>
-pip freeze > requirements.txt
+# From project root
+cp .env.example .env
+# Edit .env with your Supabase credentials
+
+docker compose up --build
+```
+
+### Access Services
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
+| Airflow UI | http://localhost:8080 |
+
+### Run Tests
+
+```bash
+# Backend
+cd backend && pytest
+
+# With coverage
+cd backend && pytest --cov=src --cov-report=term-missing
 ```
 
 ### Run Linter
 
 ```bash
-ruff check .
-```
+# Backend
+ruff check backend/src
 
-### Format Code
-
-```bash
-ruff format .
+# Frontend
+cd frontend && npm run lint
 ```
 
 ---
 
-## AI Assistant Guidelines
+## Testing
 
-### Do
+### Backend Tests
 
-- Write clean, readable code
-- Include type hints
-- Add docstrings to public functions
-- Write unit tests for new features
-- Follow existing patterns in the codebase
+- Files: `tests/test_<module>.py`
+- Functions: `test_<function>_<scenario>()`
+- Use pytest fixtures for Supabase mocking
 
-### Don't
+### Frontend Tests
 
-- Remove existing tests without explanation
-- Change coding style mid-project
-- Add dependencies without justification
-- Leave commented-out code
-
----
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ANTHROPIC_API_KEY` | Anthropic API key | No |
-| `OPENAI_API_KEY` | OpenAI API key | No |
+- Use Vitest for unit tests
+- Use React Testing Library for component tests
 
 ---
 
 ## Notes
 
-[Add project-specific notes, gotchas, or context here]
+### Development Workflow
+
+1. Start Supabase (cloud) and get credentials
+2. Run database migrations in Supabase SQL Editor
+3. Start Docker Compose services
+4. Create pipelines in frontend
+5. Generate DAGs and run in Airflow
+
+### Key Implementation Details
+
+- DAGs are generated as Python files in the `dags/` directory
+- Airflow reads DAGs from the mounted volume
+- Each pipeline stage runs in an isolated Docker container via DockerOperator
+- Artifacts are stored in Supabase and can be downloaded from the frontend
+
+### Future Extensibility
+
+- Add Verilator for Verilog simulation
+- Add Yosys for synthesis
+- Add support for multiple EDA tool versions via image tags
+- Implement real-time pipeline execution monitoring
