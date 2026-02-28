@@ -49,8 +49,8 @@ export default function FlowEditor() {
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const [showAddPanel, setShowAddPanel] = useState(false)
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<any>>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<any>>([]);
 
   const isNew = !id || id === 'new'
 
