@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../services/api'
 import type { Stage } from '../types/pipeline'
+import VhdEditor from './VhdEditor'
 
 interface StageConfigProps {
   stage: Stage
@@ -12,12 +13,24 @@ export default function StageConfig({ stage, onClose, onUpdate }: StageConfigPro
   const [name, setName] = useState(stage.name)
   const [command, setCommand] = useState(stage.command)
   const [image, setImage] = useState(stage.image)
+  const [fileContent, setFileContent] = useState('')
   const [saving, setSaving] = useState(false)
+  const isFileInput = stage.tool_name === 'file_input'
+
+  useEffect(() => {
+    if (isFileInput && stage.config?.content) {
+      setFileContent(stage.config.content as string)
+    }
+  }, [stage.config, isFileInput])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const updated = await api.updateStage(stage.id, { name, command, image })
+      const updateData: { name: string; command: string; image: string; config?: Record<string, unknown> } = { name, command, image }
+      if (isFileInput) {
+        updateData.config = { content: fileContent }
+      }
+      const updated = await api.updateStage(stage.id, updateData)
       onUpdate(updated)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to update stage')
@@ -70,6 +83,17 @@ export default function StageConfig({ stage, onClose, onUpdate }: StageConfigPro
             rows={4}
           />
         </div>
+
+        {isFileInput && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">VHDL Code</label>
+            <VhdEditor
+              value={fileContent}
+              onChange={setFileContent}
+              height="300px"
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Depends On</label>

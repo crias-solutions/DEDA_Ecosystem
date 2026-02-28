@@ -407,3 +407,143 @@ cd frontend && npm run lint
 - Add Yosys for synthesis
 - Add support for multiple EDA tool versions via image tags
 - Implement real-time pipeline execution monitoring
+
+---
+
+## Documentation Standards
+
+### README.md Guidelines
+
+When creating or modifying README.md, apply these frameworks:
+
+#### The Golden Circle (Simon Sinek)
+
+Start with **why**, then **how**, then **what**:
+
+1. **Why** - Purpose and vision
+2. **How** - Process and methodology  
+3. **What** - Features and technical details
+
+Example structure:
+```
+## Why [Project Name]
+Hardware design automation for modern engineers.
+
+## How It Works
+Visual pipelines → DAG generation → Container execution
+
+## What It Does
+- Drag-and-drop workflow builder
+- VHDL/GHDL simulation pipeline
+- Waveform visualization
+```
+
+#### Diataxis Framework
+
+Structure documentation by user intent:
+
+| Type | Purpose | Content |
+|------|---------|---------|
+| **Tutorial** | Learning by doing | Step-by-step hands-on guide |
+| **How-to** | Accomplish a task | Action-oriented instructions |
+| **Explanation** | Understand concept | Background and context |
+| **Reference** | Find facts | API, commands, schema |
+
+#### Rule of Three
+
+Present information in groups of three:
+- 3 key features
+- 3 prerequisites
+- 3 steps to start
+- 3 ways to contribute
+
+#### KISS Principle
+
+- Keep sentences short
+- One idea per paragraph
+- Use active voice
+- Avoid jargon or explain it
+- Show, don't just tell
+- Use code examples
+
+#### Badge Requirements
+
+All badges must use matching brand colors for each tool. Use these color codes:
+
+| Tool | Color Code | Badge Format |
+|------|------------|--------------|
+| Python | #3776AB | `![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)` |
+| React | #61DAFB | `![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)` |
+| TypeScript | #3178C6 | `![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6?style=flat-square&logo=typescript&logoColor=white)` |
+| FastAPI | #009688 | `![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)` |
+| Apache Airflow | #017CEE | `![Airflow](https://img.shields.io/badge/Apache_Airflow-017CEE?style=flat-square&logo=apache-airflow&logoColor=white)` |
+| Supabase | #3FCF8E | `![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=black)` |
+| Docker | #2496ED | `![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)` |
+| Vite | #646CFF | `![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)` |
+| Monaco Editor | #F5A623 | `![Monaco](https://img.shields.io/badge/Monaco_Editor-F5A623?style=flat-square&logo=monaco-editor&logoColor=black)` |
+| GHDL | #FF6B6B | `![GHDL](https://img.shields.io/badge/GHDL-FF6B6B?style=flat-square)` |
+| GTKWave | #4ECDC4 | `![GTKWave](https://img.shields.io/badge/GTKWave-4ECDC4?style=flat-square)` |
+
+Example badge section:
+```markdown
+## Tech Stack
+
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Apache Airflow](https://img.shields.io/badge/Apache_Airflow-017CEE?style=flat-square&logo=apache-airflow&logoColor=white)](https://airflow.apache.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=black)](https://supabase.com/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+```
+
+### GUIDE.md Guidelines
+
+Create GUIDE.md for user-focused usage documentation:
+
+#### Content Structure
+
+1. **Quick Start** (3 steps max)
+   - Prerequisites
+   - Run command
+   - First action
+
+2. **Core Concepts** (explain like I'm 5)
+   - What is a pipeline?
+   - What is a stage?
+   - How does DAG generation work?
+
+3. **User Workflows**
+   - Create a pipeline
+   - Add stages
+   - Configure tools
+   - Run and view results
+
+4. **Troubleshooting**
+   - Common issues
+   - Solutions
+
+#### Writing Style
+
+- Use second person ("you")
+- Write actionable steps
+- Include screenshots or diagrams
+- Show expected output
+- Keep it skimmable with headers and lists
+
+#### Example Template
+
+```markdown
+# DEDA Ecosystem Guide
+
+## Get Started
+1. [Prerequisite]
+2. [Run]
+3. [Create pipeline]
+
+## Understanding Pipelines
+[Practical explanation with diagram]
+
+## Next Steps
+- [Link to how-to]
+- [Link to reference]
+```

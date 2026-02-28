@@ -35,6 +35,7 @@ interface ToolTemplate {
 }
 
 const toolTemplates: ToolTemplate[] = [
+  { name: 'File Input', tool_name: 'file_input', image: 'deda/input-handler:latest', command_template: 'copy {files} /workspace' },
   { name: 'GHDL Analysis', tool_name: 'ghdl', image: 'ghdl/ghdl:llvm', command_template: 'ghdl -a {files}' },
   { name: 'GHDL Elaboration', tool_name: 'ghdl', image: 'ghdl/ghdl:llvm', command_template: 'ghdl -e {entity}' },
   { name: 'GHDL Simulation', tool_name: 'ghdl', image: 'ghdl/ghdl:llvm', command_template: 'ghdl -r {entity} --vcd={output}' },
