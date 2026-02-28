@@ -1,5 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+import type { Pipeline, PipelineWithStages, Stage } from '../types/pipeline'
+
 export interface CreatePipelineRequest {
   name: string
   description?: string
@@ -39,18 +41,18 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  listPipelines: () => fetchJson<import('./types/pipeline').Pipeline[]>(`${API_URL}/api/pipelines`),
+  listPipelines: () => fetchJson<Pipeline[]>(`${API_URL}/api/pipelines`),
   
-  getPipeline: (id: string) => fetchJson<import('./types/pipeline').PipelineWithStages>(`${API_URL}/api/pipelines/${id}`),
+  getPipeline: (id: string) => fetchJson<PipelineWithStages>(`${API_URL}/api/pipelines/${id}`),
   
   createPipeline: (data: CreatePipelineRequest) => 
-    fetchJson<import('./types/pipeline').Pipeline>(`${API_URL}/api/pipelines`, {
+    fetchJson<Pipeline>(`${API_URL}/api/pipelines`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   
   updatePipeline: (id: string, data: Partial<CreatePipelineRequest>) =>
-    fetchJson<import('./types/pipeline').Pipeline>(`${API_URL}/api/pipelines/${id}`, {
+    fetchJson<Pipeline>(`${API_URL}/api/pipelines/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -59,16 +61,16 @@ export const api = {
     fetchJson<void>(`${API_URL}/api/pipelines/${id}`, { method: 'DELETE' }),
   
   listStages: (pipelineId: string) =>
-    fetchJson<import('./types/pipeline').Stage[]>(`${API_URL}/api/pipelines/${pipelineId}/stages`),
+    fetchJson<Stage[]>(`${API_URL}/api/pipelines/${pipelineId}/stages`),
   
   createStage: (pipelineId: string, data: CreateStageRequest) =>
-    fetchJson<import('./types/pipeline').Stage>(`${API_URL}/api/pipelines/${pipelineId}/stages`, {
+    fetchJson<Stage>(`${API_URL}/api/pipelines/${pipelineId}/stages`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   
   updateStage: (stageId: string, data: Partial<CreateStageRequest>) =>
-    fetchJson<import('./types/pipeline').Stage>(`${API_URL}/api/stages/${stageId}`, {
+    fetchJson<Stage>(`${API_URL}/api/stages/${stageId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),

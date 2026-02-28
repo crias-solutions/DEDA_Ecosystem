@@ -46,12 +46,11 @@ export default function FlowEditor() {
   const navigate = useNavigate()
   const [pipeline, setPipeline] = useState<PipelineWithStages | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const [showAddPanel, setShowAddPanel] = useState(false)
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const isNew = !id || id === 'new'
 
@@ -69,9 +68,8 @@ export default function FlowEditor() {
       const data = await api.getPipeline(pipelineId)
       setPipeline(data)
       convertStagesToNodes(data.stages)
-      setError(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load pipeline')
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -115,7 +113,6 @@ export default function FlowEditor() {
   const handleAddStage = async (template: ToolTemplate) => {
     if (!pipeline) {
       const newPipeline = await api.createPipeline({ name: 'New Pipeline' })
-      setPipeline(newPipeline)
       navigate(`/pipeline/${newPipeline.id}`)
       return
     }
