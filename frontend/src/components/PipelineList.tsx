@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import type { Pipeline } from '../types/pipeline'
-import { loadExamplePipeline } from './PipelineExamples'
+import { loadExamplePipeline, loadAdderExample } from './PipelineExamples'
 
 export default function PipelineList() {
   const navigate = useNavigate()
@@ -79,19 +79,48 @@ export default function PipelineList() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-700">Pipelines</h2>
         <div className="flex gap-2">
-          <button
-            onClick={handleLoadExample}
-            disabled={loadingExample}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-          >
-            {loadingExample ? 'Loading...' : 'Load Example'}
-          </button>
-          <button
-            onClick={() => setShowCreate(!showCreate)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            {showCreate ? 'Cancel' : 'New Pipeline'}
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowCreate(!showCreate)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {showCreate ? 'Cancel' : 'New Pipeline'}
+            </button>
+          </div>
+          <div className="relative group">
+            <button
+              disabled={loadingExample}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+            >
+              {loadingExample ? 'Loading...' : 'Load Example'}
+            </button>
+            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+              <button
+                onClick={handleLoadExample}
+                disabled={loadingExample}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-lg disabled:opacity-50"
+              >
+                VHDL Counter
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    setLoadingExample(true)
+                    const pipelineId = await loadAdderExample()
+                    navigate(`/pipeline/${pipelineId}`)
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Failed to load example')
+                  } finally {
+                    setLoadingExample(false)
+                  }
+                }}
+                disabled={loadingExample}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-lg disabled:opacity-50"
+              >
+                VHDL Adder
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,6 @@
 import { api } from '../services/api'
+import adderSrc from '../examples/vhdl/adder.vhd?raw'
+import adderTbSrc from '../examples/vhdl/adder_tb.vhd?raw'
 
 interface ExamplePipeline {
   name: string
@@ -158,4 +160,76 @@ export async function loadExamplePipeline(): Promise<string> {
   return pipelineId
 }
 
-export { VHDL_SIMULATION_EXAMPLE }
+const ADDER_EXAMPLE: ExamplePipeline = {
+  name: 'VHDL Adder',
+  description: '8-bit adder with GHDL simulation and GTKWave visualization',
+  stages: [
+    {
+      name: 'Design File',
+      tool_name: 'file_input',
+      image: 'deda/input-handler:latest',
+      command: 'copy adder.vhd /workspace',
+      config: { content: adderSrc, filename: 'adder.vhd' }
+    },
+    {
+      name: 'Testbench',
+      tool_name: 'file_input',
+      image: 'deda/input-handler:latest',
+      command: 'copy adder_tb.vhd /workspace',
+      config: { content: adderTbSrc, filename: 'adder_tb.vhd' }
+    },
+    {
+      name: 'GHDL Analysis',
+      tool_name: 'ghdl',
+      image: 'ghdl/ghdl:llvm',
+      command: 'ghdl -a adder.vhd && ghdl -a adder_tb.vhd',
+    },
+    {
+      name: 'GHDL Elaboration',
+      tool_name: 'ghdl',
+      image: 'ghdl/ghdl:llvm',
+      command: 'ghdl -e adder_tb',
+    },
+    {
+      name: 'GHDL Simulation',
+      tool_name: 'ghdl',
+      image: 'ghdl/ghdl:llvm',
+      command: 'ghdl -r adder_tb --vcd=waveform.vcd',
+    },
+    {
+      name: 'GTKWave View',
+      tool_name: 'gtkwave',
+      image: 'gtkwave/gtkwave:latest',
+      command: 'gtkwave waveform.vcd',
+    }
+  ]
+}
+
+export async function loadAdderExample(): Promise<string> {
+  const pipeline = await api.createPipeline({
+    name: ADDER_EXAMPLE.name,
+    description: ADDER_EXAMPLE.description
+  })
+
+  const pipelineId = pipeline.id
+  const stages = ADDER_EXAMPLE.stages
+
+  for (let i = 0; i < stages.length; i++) {
+    const stage = stages[i]
+    
+    await api.createStage(pipelineId, {
+      name: stage.name,
+      tool_name: stage.tool_name,
+      image: stage.image,
+      command: stage.command,
+      config: stage.config || {},
+      order_index: i,
+      position_x: 100 + i * 200,
+      position_y: 100
+    })
+  }
+
+  return pipelineId
+}
+
+export { VHDL_SIMULATION_EXAMPLE, ADDER_EXAMPLE }
