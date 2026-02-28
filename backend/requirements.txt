@@ -5,13 +5,6 @@ uvicorn[standard]>=0.27.0
 # Supabase
 supabase>=2.0.0
 
-# Airflow (for DAG generation)
-apache-airflow>=2.8.0
-airflow-providers-docker>=3.0.0
-
-# Database
-sqlalchemy>=2.0.0
-
 # Serialization
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
