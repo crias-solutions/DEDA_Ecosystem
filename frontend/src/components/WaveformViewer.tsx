@@ -107,7 +107,7 @@ export default function WaveformViewer({ stageId, onClose }: WaveformViewerProps
     setError(null)
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${API_URL}/api/stages/${stageId}/artifacts`)
+      const response = await fetch(`${API_URL}/api/pipelines/stages/${stageId}/artifacts`)
       
       if (!response.ok) {
         if (response.status === 404) {

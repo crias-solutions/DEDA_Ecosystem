@@ -70,13 +70,13 @@ export const api = {
     }),
   
   updateStage: (stageId: string, data: Partial<CreateStageRequest>) =>
-    fetchJson<Stage>(`${API_URL}/api/stages/${stageId}`, {
+    fetchJson<Stage>(`${API_URL}/api/pipelines/stages/${stageId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
   
   deleteStage: (stageId: string) =>
-    fetchJson<void>(`${API_URL}/api/stages/${stageId}`, { method: 'DELETE' }),
+    fetchJson<void>(`${API_URL}/api/pipelines/stages/${stageId}`, { method: 'DELETE' }),
   
   generateDag: (pipelineId: string) =>
     fetchJson<{ dag_id: string; file_path: string; success: boolean; message: string }>(
