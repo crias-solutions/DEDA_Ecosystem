@@ -44,7 +44,7 @@ class StageBase(BaseModel):
 
 
 class StageCreate(StageBase):
-    pipeline_id: UUID
+    pipeline_id: Optional[UUID] = None
 
 
 class StageUpdate(BaseModel):
